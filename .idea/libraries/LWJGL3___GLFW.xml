@@ -1,18 +1,13 @@
 <component name="libraryTable">
-  <library name="LWJGL 3">
+  <library name="LWJGL3 - GLFW">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-glfw-natives-linux.jar!/" />
       <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-glfw-natives-macos.jar!/" />
       <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-glfw-natives-windows.jar!/" />
       <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-glfw.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-natives-linux.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-natives-macos.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-natives-windows.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-glfw-javadoc.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lwjgl/lwjgl-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES />
   </library>
