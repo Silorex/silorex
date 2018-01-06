@@ -10,5 +10,6 @@
     <orderEntry type="library" name="LWJGL3" level="project" />
     <orderEntry type="library" name="LWJGL3 - OpenGL" level="project" />
     <orderEntry type="library" name="LWJGL3 - GLFW" level="project" />
+    <orderEntry type="library" name="LWJGL3 - OpenCL" level="project" />
   </component>
 </module>
