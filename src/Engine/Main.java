@@ -1,11 +1,14 @@
 package Engine;
 
+import Entities.Entity;
 import Models.TexturedModel;
+import RenderEngine.Camera;
 import RenderEngine.Loader;
 import Models.RawModel;
 import RenderEngine.Renderer;
 import Shaders.StaticShader;
-import Textures.ModelTexture;
+import Models.ModelTexture;
+import Toolbox.Vector3;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -15,7 +18,11 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class Main {
+public class Main
+{
+
+	public static boolean[] keys = new boolean[65536];
+
 
 	private long window;
 	private Loader loader;
@@ -54,11 +61,17 @@ public class Main {
 		}
 
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+
+			keys[key] = action != GLFW.GLFW_RELEASE;
+
 			if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
 			{
 				glfwSetWindowShouldClose(window, true);
 			}
 		});
+
+		//GLFWKeyCallback keyCallback;
+		//glfwSetKeyCallback(window, keyCallback = new KeyboardHandler());
 
 		try(MemoryStack stack = stackPush())
 		{
@@ -77,8 +90,15 @@ public class Main {
 	private void myInit()
 	{
 		loader = new Loader();
-		renderer = new Renderer();
 		shader = new StaticShader();
+		IntBuffer pWidth, pHeight;
+		try(MemoryStack stack = stackPush())
+		{
+			pWidth = stack.mallocInt(1);
+			pHeight = stack.mallocInt(1);
+			glfwGetWindowSize(window, pWidth, pHeight);
+		}
+		renderer = new Renderer(shader, (float) pWidth.get() / (float) pHeight.get());
 	}
 
 	private void loop() {
@@ -87,19 +107,103 @@ public class Main {
 
 		myInit();
 
-		float[] vertices = { -0.5f, 0.5f, 0f, -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f };
-		int[] indices = {0, 1, 3, 3, 1, 2};
-		float[] textures = {0, 0, 0, 1, 1, 1, 1, 0};
+		float[] vertices = {
+				-0.5f,0.5f,-0.5f,
+				-0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,-0.5f,
+				0.5f,0.5f,-0.5f,
+
+				-0.5f,0.5f,0.5f,
+				-0.5f,-0.5f,0.5f,
+				0.5f,-0.5f,0.5f,
+				0.5f,0.5f,0.5f,
+
+				0.5f,0.5f,-0.5f,
+				0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,0.5f,
+				0.5f,0.5f,0.5f,
+
+				-0.5f,0.5f,-0.5f,
+				-0.5f,-0.5f,-0.5f,
+				-0.5f,-0.5f,0.5f,
+				-0.5f,0.5f,0.5f,
+
+				-0.5f,0.5f,0.5f,
+				-0.5f,0.5f,-0.5f,
+				0.5f,0.5f,-0.5f,
+				0.5f,0.5f,0.5f,
+
+				-0.5f,-0.5f,0.5f,
+				-0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,0.5f
+
+		};
+
+		float[] textures = {
+
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0
+
+
+		};
+
+		int[] indices = {
+				0,1,3,
+				3,1,2,
+				4,5,7,
+				7,5,6,
+				8,9,11,
+				11,9,10,
+				12,13,15,
+				15,13,14,
+				16,17,19,
+				19,17,18,
+				20,21,23,
+				23,21,22
+
+		};
 		RawModel model = loader.loadToVAO(vertices, indices, textures);
 		ModelTexture texture = new ModelTexture(loader.loadTexture("abcd"));
 		TexturedModel texturedModel = new TexturedModel(model, texture);
+		Entity entity = new Entity(texturedModel, new Vector3(0, 0, -5), new Vector3(0, 0.5f, 0), 1f);
+
+		Camera camera = new Camera();
 
 		while(!glfwWindowShouldClose(window))
 		{
+			//entity.increasePosition(0, 0, -0.02f);
+			entity.increaseRotation(1, 1, 0);
+
+			camera.move();
+
 			renderer.prepare();
 
 			shader.start();
-			renderer.render(texturedModel);
+			shader.loadViewMatrix(camera);
+			renderer.render(entity, shader);
 			shader.stop();
 
 			glfwSwapBuffers(window);

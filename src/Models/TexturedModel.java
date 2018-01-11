@@ -1,7 +1,5 @@
 package Models;
 
-import Textures.ModelTexture;
-
 public class TexturedModel
 {
 	private RawModel rawModel;
