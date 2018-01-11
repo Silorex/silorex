@@ -1,8 +1,10 @@
 package Shaders;
 
+import Entities.Light;
 import RenderEngine.Camera;
 import Toolbox.Maths;
 import Toolbox.Matrix4;
+import Toolbox.Vector3;
 
 public class StaticShader extends ShaderProgram
 {
@@ -12,6 +14,10 @@ public class StaticShader extends ShaderProgram
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;
 	private int location_viewMatrix;
+	private int location_lightPosition;
+	private int location_lightColor;
+	private int location_shineDamper;
+	private int location_reflectivity;
 
 	public StaticShader()
 	{
@@ -23,6 +29,7 @@ public class StaticShader extends ShaderProgram
 	{
 		super.bindAttribute(0, "position");
 		super.bindAttribute(1, "textureCoords");
+		super.bindAttribute(2, "normal");
 	}
 
 	protected void getAllUniformLocations()
@@ -30,6 +37,10 @@ public class StaticShader extends ShaderProgram
 		location_transformationMatrix = super.getUniformLocation("transformationMatrix");
 		location_projectionMatrix = super.getUniformLocation("projectionMatrix");
 		location_viewMatrix = super.getUniformLocation("viewMatrix");
+		location_lightPosition = super.getUniformLocation("lightPosition");
+		location_lightColor = super.getUniformLocation("lightColor");
+		location_shineDamper = super.getUniformLocation("shineDamper");
+		location_reflectivity = super.getUniformLocation("reflectivity");
 	}
 
 	public void loadTransformationMatrix(Matrix4 matrix)
@@ -46,5 +57,17 @@ public class StaticShader extends ShaderProgram
 	{
 		Matrix4 viewMatrix = Maths.createViewMatrix(camera);
 		super.loadMatrix(location_viewMatrix, viewMatrix);
+	}
+
+	public void loadLight(Light light)
+	{
+		super.loadVector(location_lightPosition, light.getPosition());
+		super.loadVector(location_lightColor, light.getColor());
+	}
+
+	public void loadShineVariables(float damper, float reflectivity)
+	{
+		super.loadFloat(location_shineDamper, damper);
+		super.loadFloat(location_reflectivity, reflectivity);
 	}
 }

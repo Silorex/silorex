@@ -1,6 +1,7 @@
 package RenderEngine;
 
 import Entities.Entity;
+import Models.ModelTexture;
 import Models.RawModel;
 import Models.TexturedModel;
 import Shaders.StaticShader;
@@ -11,6 +12,9 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import java.util.List;
+import java.util.Map;
+
 public class Renderer
 {
 	private static final float FOV = 70;
@@ -18,9 +22,13 @@ public class Renderer
 	private static final float FAR_PLANE = 1000f;
 
 	private Matrix4 projectionMatrix;
+	private StaticShader shader;
 
 	public Renderer(StaticShader shader, float aspectRatio)
 	{
+		this.shader = shader;
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glCullFace(GL11.GL_BACK);
 		createProjectionMatrix(aspectRatio);
 		shader.start();
 		shader.loadProjectionMatrix(projectionMatrix);
@@ -34,21 +42,46 @@ public class Renderer
 		GL11.glClearColor(1, 0, 0, 1);
 	}
 
-	public void render(Entity entity, StaticShader shader)
+	public void render(Map<TexturedModel, List<Entity>> entities)
 	{
-		TexturedModel model = entity.getTexturedModel();
+		for(TexturedModel model:entities.keySet())
+		{
+			prepareTexturedModel(model);
+			List<Entity> batch = entities.get(model);
+			for(Entity entity:batch)
+			{
+				prepareInstance(entity);
+				GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			}
+			unbindTexturedModel();
+		}
+	}
+
+	private void prepareTexturedModel(TexturedModel model)
+	{
 		RawModel rawModel = model.getRawModel();
+		ModelTexture texture = model.getTexture();
 		GL30.glBindVertexArray(rawModel.getVaoID());
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glEnableVertexAttribArray(1);
-		Matrix4 transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotation(), entity.getScale());
-		shader.loadTransformationMatrix(transformationMatrix);
+		GL20.glEnableVertexAttribArray(2);
+		shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTexture().getTextureID());
-		GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+	}
+
+	private void unbindTexturedModel()
+	{
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
+		GL20.glDisableVertexAttribArray(2);
 		GL30.glBindVertexArray(0);
+	}
+
+	private void prepareInstance(Entity entity)
+	{
+		Matrix4 transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotation(), entity.getScale());
+		shader.loadTransformationMatrix(transformationMatrix);
 	}
 
 	private void createProjectionMatrix(float aspectRatio)

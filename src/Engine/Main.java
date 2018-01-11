@@ -1,10 +1,13 @@
 package Engine;
 
 import Entities.Entity;
+import Entities.Light;
+import Models.OBJLoader;
 import Models.TexturedModel;
 import RenderEngine.Camera;
 import RenderEngine.Loader;
 import Models.RawModel;
+import RenderEngine.MasterRenderer;
 import RenderEngine.Renderer;
 import Shaders.StaticShader;
 import Models.ModelTexture;
@@ -22,12 +25,11 @@ public class Main
 {
 
 	public static boolean[] keys = new boolean[65536];
+	public static float AspectRatio = 0;
 
 
 	private long window;
 	private Loader loader;
-	private Renderer renderer;
-	private StaticShader shader;
 
 	public void run()
 	{
@@ -39,8 +41,8 @@ public class Main
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
 
+		MasterRenderer.cleanUp();
 		Loader.cleanUp();
-		shader.cleanUp();
 	}
 
 	private void init()
@@ -78,6 +80,7 @@ public class Main
 			IntBuffer pWidth = stack.mallocInt(1);
 			IntBuffer pHeight = stack.mallocInt(1);
 			glfwGetWindowSize(window, pWidth, pHeight);
+			AspectRatio = (float) pWidth.get() / (float) pHeight.get();
 			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2,(vidmode.height() - pHeight.get(0)) / 2);
 		}
@@ -87,124 +90,34 @@ public class Main
 		glfwShowWindow(window);
 	}
 
-	private void myInit()
-	{
-		loader = new Loader();
-		shader = new StaticShader();
-		IntBuffer pWidth, pHeight;
-		try(MemoryStack stack = stackPush())
-		{
-			pWidth = stack.mallocInt(1);
-			pHeight = stack.mallocInt(1);
-			glfwGetWindowSize(window, pWidth, pHeight);
-		}
-		renderer = new Renderer(shader, (float) pWidth.get() / (float) pHeight.get());
-	}
-
 	private void loop() {
 		GL.createCapabilities();
 		GLUtil.setupDebugMessageCallback();
 
-		myInit();
+		loader = new Loader();
 
-		float[] vertices = {
-				-0.5f,0.5f,-0.5f,
-				-0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,-0.5f,
-				0.5f,0.5f,-0.5f,
-
-				-0.5f,0.5f,0.5f,
-				-0.5f,-0.5f,0.5f,
-				0.5f,-0.5f,0.5f,
-				0.5f,0.5f,0.5f,
-
-				0.5f,0.5f,-0.5f,
-				0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,0.5f,
-				0.5f,0.5f,0.5f,
-
-				-0.5f,0.5f,-0.5f,
-				-0.5f,-0.5f,-0.5f,
-				-0.5f,-0.5f,0.5f,
-				-0.5f,0.5f,0.5f,
-
-				-0.5f,0.5f,0.5f,
-				-0.5f,0.5f,-0.5f,
-				0.5f,0.5f,-0.5f,
-				0.5f,0.5f,0.5f,
-
-				-0.5f,-0.5f,0.5f,
-				-0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,-0.5f,
-				0.5f,-0.5f,0.5f
-
-		};
-
-		float[] textures = {
-
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0
-
-
-		};
-
-		int[] indices = {
-				0,1,3,
-				3,1,2,
-				4,5,7,
-				7,5,6,
-				8,9,11,
-				11,9,10,
-				12,13,15,
-				15,13,14,
-				16,17,19,
-				19,17,18,
-				20,21,23,
-				23,21,22
-
-		};
-		RawModel model = loader.loadToVAO(vertices, indices, textures);
-		ModelTexture texture = new ModelTexture(loader.loadTexture("abcd"));
+		RawModel model = OBJLoader.loadObjModel("stall", loader);
+		ModelTexture texture = new ModelTexture(loader.loadTexture("stall"));
+		texture.setShineDamper(10);
+		texture.setReflectivity(1);
 		TexturedModel texturedModel = new TexturedModel(model, texture);
-		Entity entity = new Entity(texturedModel, new Vector3(0, 0, -5), new Vector3(0, 0.5f, 0), 1f);
+		Entity entity = new Entity(texturedModel, new Vector3(0, 0, -50), new Vector3(0, 0, 0), 1f);
+		Light light = new Light(new Vector3(0, 0, -20), new Vector3(1, 1, 1));
 
 		Camera camera = new Camera();
+
+		MasterRenderer renderer = new MasterRenderer();
 
 		while(!glfwWindowShouldClose(window))
 		{
 			//entity.increasePosition(0, 0, -0.02f);
-			entity.increaseRotation(1, 1, 0);
+			entity.increaseRotation(0, 1, 0);
 
 			camera.move();
 
-			renderer.prepare();
+			renderer.proccessEntity(entity);
 
-			shader.start();
-			shader.loadViewMatrix(camera);
-			renderer.render(entity, shader);
-			shader.stop();
+			renderer.render(light, camera);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
