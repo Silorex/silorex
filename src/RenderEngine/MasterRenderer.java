@@ -5,6 +5,7 @@ import Entities.Entity;
 import Entities.Light;
 import Models.TexturedModel;
 import Shaders.StaticShader;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,17 @@ public class MasterRenderer
 			newBatch.add(entity);
 			entities.put(entityModel, newBatch);
 		}
+	}
+
+	public static void enableCulling()
+	{
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glCullFace(GL11.GL_BACK);
+	}
+
+	public static void disableCulling()
+	{
+		GL11.glDisable(GL11.GL_CULL_FACE);
 	}
 
 	public void render(Light sun, Camera camera)

@@ -8,6 +8,7 @@ uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 lightPosition;
+uniform bool useFakeLighting;
 
 out vec2 pass_textureCoords;
 out vec3 surfaceNormal;
@@ -19,6 +20,9 @@ void main()
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
 	gl_Position = projectionMatrix * viewMatrix * worldPosition;
 	pass_textureCoords = textureCoords;
+
+	vec3 actualNormal = normal;
+	if(useFakeLighting == true) actualNormal = vec3(0, 1, 0);
 
 	surfaceNormal = (transformationMatrix * vec4(normal, 0.0)).xyz;
 	toLightVector = lightPosition - worldPosition.xyz;

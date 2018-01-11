@@ -27,8 +27,7 @@ public class Renderer
 	public Renderer(StaticShader shader, float aspectRatio)
 	{
 		this.shader = shader;
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glCullFace(GL11.GL_BACK);
+		MasterRenderer.enableCulling();
 		createProjectionMatrix(aspectRatio);
 		shader.start();
 		shader.loadProjectionMatrix(projectionMatrix);
@@ -65,6 +64,11 @@ public class Renderer
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glEnableVertexAttribArray(1);
 		GL20.glEnableVertexAttribArray(2);
+		if(texture.isHasTransparency())
+		{
+			MasterRenderer.disableCulling();
+		}
+		shader.loadFakeLightingVariable(texture.isUseFakeLightning());
 		shader.loadShineVariables(texture.getShineDamper(), texture.getReflectivity());
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getTexture().getTextureID());
@@ -72,6 +76,7 @@ public class Renderer
 
 	private void unbindTexturedModel()
 	{
+		MasterRenderer.enableCulling();
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
 		GL20.glDisableVertexAttribArray(2);
