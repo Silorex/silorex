@@ -1,16 +1,17 @@
 package Engine;
 
+import Models.TexturedModel;
 import RenderEngine.Loader;
-import RenderEngine.RawModel;
+import Models.RawModel;
 import RenderEngine.Renderer;
 import Shaders.StaticShader;
+import Textures.ModelTexture;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -88,14 +89,17 @@ public class Main {
 
 		float[] vertices = { -0.5f, 0.5f, 0f, -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f };
 		int[] indices = {0, 1, 3, 3, 1, 2};
-		RawModel model = loader.loadToVAO(vertices, indices);
+		float[] textures = {0, 0, 0, 1, 1, 1, 1, 0};
+		RawModel model = loader.loadToVAO(vertices, indices, textures);
+		ModelTexture texture = new ModelTexture(loader.loadTexture("abcd"));
+		TexturedModel texturedModel = new TexturedModel(model, texture);
 
 		while(!glfwWindowShouldClose(window))
 		{
 			renderer.prepare();
 
 			shader.start();
-			renderer.render(model);
+			renderer.render(texturedModel);
 			shader.stop();
 
 			glfwSwapBuffers(window);
