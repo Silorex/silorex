@@ -37,10 +37,6 @@ public class Main {
 
 	private void init()
 	{
-		loader = new Loader();
-		renderer = new Renderer();
-		shader = new StaticShader();
-
 		GLFWErrorCallback.createPrint(System.err).set();
 
 		if (!glfwInit()) throw new IllegalStateException("Unable to initialize GLFW");
@@ -77,9 +73,18 @@ public class Main {
 		glfwShowWindow(window);
 	}
 
+	private void myInit()
+	{
+		loader = new Loader();
+		renderer = new Renderer();
+		shader = new StaticShader();
+	}
+
 	private void loop() {
 		GL.createCapabilities();
 		GLUtil.setupDebugMessageCallback();
+
+		myInit();
 
 		float[] vertices = { -0.5f, 0.5f, 0f, -0.5f, -0.5f, 0f, 0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f };
 		int[] indices = {0, 1, 3, 3, 1, 2};
