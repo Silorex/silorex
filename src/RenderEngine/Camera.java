@@ -21,19 +21,19 @@ public class Camera
 	{
 		if(Main.keys[GLFW.GLFW_KEY_W])//if(KeyboardHandler.isKeyDown(GLFW.GLFW_KEY_W))
 		{
-			position.z(position.z() - 0.02f);
+			position.z(position.z() - 0.2f);
 		}
 		else if(Main.keys[GLFW.GLFW_KEY_S])
 		{
-			position.z(position.z() + 0.02f);
+			position.z(position.z() + 0.2f);
 		}
 		else if(Main.keys[GLFW.GLFW_KEY_A])
 		{
-			position.x(position.x() + 0.02f);
+			position.x(position.x() + 0.2f);
 		}
 		else if(Main.keys[GLFW.GLFW_KEY_D])
 		{
-			position.x(position.x() - 0.02f);
+			position.x(position.x() - 0.2f);
 		}
 	}
 
