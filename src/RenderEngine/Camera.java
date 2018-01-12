@@ -1,17 +1,13 @@
 package RenderEngine;
 
-import Engine.Main;
-//import GUI.KeyboardHandler;
-import Entities.Entity;
 import Entities.Player;
 import Toolbox.Vector3;
-import org.lwjgl.glfw.GLFW;
 
 public class Camera
 {
 	private static Camera camera;
 
-	private float distanceFromPlayer = 25;
+	private float distanceFromPlayer = 5;
 	private float angle = 0;
 	private Vector3 position;
 	private float pitch;
@@ -28,8 +24,8 @@ public class Camera
 
 	public void checkInput(double dx, double dy)
 	{
-		angle += dx;
-		pitch -= dy;
+		angle += dx/16;
+		pitch -= dy/16;
 	}
 
 	public void calculatePositionRotation()

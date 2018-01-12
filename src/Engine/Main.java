@@ -18,8 +18,12 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 import java.nio.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -27,7 +31,11 @@ public class Main
 {
 
 	public static boolean[] keys = new boolean[65536];
-	public static float AspectRatio = 0;
+
+	public static int WIDTH = 1280;
+	public static int HEIGHT = 720;
+	public static float AspectRatio = (float) WIDTH / HEIGHT;
+
 	private static double lastFrameTime;
 	private static double delta;
 
@@ -79,6 +87,14 @@ public class Main
 		glfwSetCursorPosCallback(window, mouseCallback = new MouseHandler());
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+		glfwSetWindowSizeCallback(window, (window, width, height) -> {
+			Main.WIDTH = width;
+			Main.HEIGHT = height;
+			Main.AspectRatio = (float) Main.WIDTH / Main.HEIGHT;
+
+			glViewport(0, 0, WIDTH, HEIGHT);
+		});
+
 		try(MemoryStack stack = stackPush())
 		{
 			IntBuffer pWidth = stack.mallocInt(1);
@@ -107,27 +123,33 @@ public class Main
 		TexturedModel texturedModel = new TexturedModel(model, texture);
 		Entity entity = new Entity(texturedModel, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
 
-		Light light = new Light(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+		RawModel model2 = OBJLoader.loadObjModel("kuup", loader);
+		ModelTexture texture2 = new ModelTexture(loader.loadTexture("abcd"));
+		TexturedModel texturedModel2 = new TexturedModel(model2, texture2);
+		Player player = new Player(texturedModel2, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
+		Camera camera = new Camera(player);
+
+		List<Light> lights = new ArrayList<Light>();
+		lights.add(new Light(new Vector3(0, 0, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));
+		lights.add(new Light(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 0.01f, 0.002f)));
+		lights.add(new Light(new Vector3(0, 0, 2), new Vector3(1, 1, 0), new Vector3(1, 0.01f, 0.002f)));
 
 		MasterRenderer renderer = new MasterRenderer();
 		lastFrameTime = getFrameTime();
-
-		Player player = new Player(texturedModel, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
-		Camera camera = new Camera(player);
 
 		while(!glfwWindowShouldClose(window))
 		{
 			//entity.increasePosition(0, 0, -0.02f);
 			//entity.increaseRotation(0, 1, 0);
 
-			camera.calculatePositionRotation();
-
 			player.move();
+
+			camera.calculatePositionRotation();
 
 			renderer.proccessEntity(player);
 			renderer.proccessEntity(entity);
 
-			renderer.render(light, camera);
+			renderer.render(lights, camera);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
