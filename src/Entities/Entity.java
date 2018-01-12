@@ -5,10 +5,10 @@ import Toolbox.Vector3;
 
 public class Entity
 {
-	private TexturedModel texturedModel;
-	private Vector3 position;
-	private Vector3 rotation;
-	private float scale;
+	protected TexturedModel texturedModel;
+	protected Vector3 position;
+	protected Vector3 rotation;
+	protected float scale;
 
 	public Entity(TexturedModel texturedModel, Vector3 position, Vector3 rotation, float scale)
 	{

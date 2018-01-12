@@ -2,8 +2,8 @@ package Toolbox;
 
 public class Vector2
 {
-	private float x;
-	private float y;
+	protected float x;
+	protected float y;
 
 	public Vector2()
 	{

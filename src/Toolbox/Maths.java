@@ -21,9 +21,6 @@ public class Maths
 		viewMatrix.rotateDeg(camera.getPitch(), 1, 0, 0);
 		viewMatrix.rotateDeg(camera.getYaw(), 0, 1, 0);
 		Vector3 campos = camera.getPosition();
-		/*campos.x(-campos.x());
-		campos.y(-campos.y());
-		campos.z(-campos.z());*/
 		viewMatrix.translate(-campos.x(), -campos.y(), -campos.z());
 		return viewMatrix;
 	}

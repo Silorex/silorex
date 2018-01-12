@@ -2,39 +2,45 @@ package RenderEngine;
 
 import Engine.Main;
 //import GUI.KeyboardHandler;
+import Entities.Entity;
+import Entities.Player;
 import Toolbox.Vector3;
 import org.lwjgl.glfw.GLFW;
 
 public class Camera
 {
+	private static Camera camera;
+
+	private float distanceFromPlayer = 25;
+	private float angle = 0;
 	private Vector3 position;
 	private float pitch;
 	private float yaw;
 	private float roll;
+	private Player player;
 
-	public Camera()
+	public Camera(Player player)
 	{
-		position = new Vector3(0);
+		this.player = player;
+		position = new Vector3(player.getPosition());
+		camera = this;
 	}
 
-	public void move()
+	public void checkInput(double dx, double dy)
 	{
-		if(Main.keys[GLFW.GLFW_KEY_W])//if(KeyboardHandler.isKeyDown(GLFW.GLFW_KEY_W))
-		{
-			position.z(position.z() - 0.2f);
-		}
-		else if(Main.keys[GLFW.GLFW_KEY_S])
-		{
-			position.z(position.z() + 0.2f);
-		}
-		else if(Main.keys[GLFW.GLFW_KEY_A])
-		{
-			position.x(position.x() + 0.2f);
-		}
-		else if(Main.keys[GLFW.GLFW_KEY_D])
-		{
-			position.x(position.x() - 0.2f);
-		}
+		angle += dx;
+		pitch -= dy;
+	}
+
+	public void calculatePositionRotation()
+	{
+		float horizontalDistance = (float) (distanceFromPlayer * Math.cos(Math.toRadians(pitch)));
+		float verticalDistance = (float) (distanceFromPlayer * Math.sin(Math.toRadians(pitch)));
+
+		position.x(player.getPosition().x() - (float) (horizontalDistance * Math.sin(Math.toRadians(angle))));
+		position.y(player.getPosition().y() + verticalDistance);
+		position.z(player.getPosition().z() - (float) (horizontalDistance * Math.cos(Math.toRadians(angle))));
+		yaw = 180 - angle;
 	}
 
 	public Vector3 getPosition()
@@ -55,5 +61,10 @@ public class Camera
 	public float getRoll()
 	{
 		return roll;
+	}
+
+	public static void MoveCamera(double dx, double dy)
+	{
+		camera.checkInput(dx, dy);
 	}
 }

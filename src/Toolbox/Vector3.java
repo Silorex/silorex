@@ -2,7 +2,7 @@ package Toolbox;
 
 public class Vector3 extends Vector2
 {
-	private float z;
+	protected float z;
 
 	public Vector3()
 	{
@@ -20,6 +20,11 @@ public class Vector3 extends Vector2
 	{
 		super(x, y);
 		this.z = z;
+	}
+
+	public Vector3(Vector3 pos)
+	{
+		this(pos.x(), pos.y(), pos.z());
 	}
 
 	public float z()
@@ -41,5 +46,10 @@ public class Vector3 extends Vector2
 	public void add(Vector3 vec)
 	{
 		this.add(vec.x(), vec.y(), vec.z());
+	}
+
+	public String toString()
+	{
+		return "(" + x + "|" + y + "|" + z + ")";
 	}
 }

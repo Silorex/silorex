@@ -2,6 +2,8 @@ package Engine;
 
 import Entities.Entity;
 import Entities.Light;
+import Entities.Player;
+import GUI.MouseHandler;
 import Models.OBJLoader;
 import Models.TexturedModel;
 import RenderEngine.Camera;
@@ -26,7 +28,8 @@ public class Main
 
 	public static boolean[] keys = new boolean[65536];
 	public static float AspectRatio = 0;
-
+	private static double lastFrameTime;
+	private static double delta;
 
 	private long window;
 	private Loader loader;
@@ -72,8 +75,9 @@ public class Main
 			}
 		});
 
-		//GLFWKeyCallback keyCallback;
-		//glfwSetKeyCallback(window, keyCallback = new KeyboardHandler());
+		GLFWCursorPosCallback mouseCallback;
+		glfwSetCursorPosCallback(window, mouseCallback = new MouseHandler());
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 		try(MemoryStack stack = stackPush())
 		{
@@ -101,32 +105,52 @@ public class Main
 		texture.setShineDamper(10);
 		texture.setReflectivity(1);
 		TexturedModel texturedModel = new TexturedModel(model, texture);
-		Entity entity = new Entity(texturedModel, new Vector3(0, 0, -50), new Vector3(0, 0, 0), 1f);
-		Light light = new Light(new Vector3(0, 0, -20), new Vector3(1, 1, 1));
+		Entity entity = new Entity(texturedModel, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
 
-		Camera camera = new Camera();
+		Light light = new Light(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
 
 		MasterRenderer renderer = new MasterRenderer();
+		lastFrameTime = getFrameTime();
+
+		Player player = new Player(texturedModel, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
+		Camera camera = new Camera(player);
 
 		while(!glfwWindowShouldClose(window))
 		{
 			//entity.increasePosition(0, 0, -0.02f);
-			entity.increaseRotation(0, 1, 0);
+			//entity.increaseRotation(0, 1, 0);
 
-			camera.move();
+			camera.calculatePositionRotation();
 
+			player.move();
+
+			renderer.proccessEntity(player);
 			renderer.proccessEntity(entity);
 
 			renderer.render(light, camera);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
+
+			double currentFrameTime = getCurrentTime();
+			delta = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
 		}
+	}
+
+	public static double getFrameTime()
+	{
+		return delta;
 	}
 
 	public static void main(String[] args)
 	{
 		new Main().run();
+	}
+
+	private static double getCurrentTime()
+	{
+		return (float) GLFW.glfwGetTime();
 	}
 
 }
