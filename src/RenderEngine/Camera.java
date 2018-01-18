@@ -7,7 +7,7 @@ public class Camera
 {
 	private static Camera camera;
 
-	private float distanceFromPlayer = 5;
+	private float distanceFromPlayer = 10;
 	private float angle = 0;
 	private Vector3 position;
 	private float pitch;

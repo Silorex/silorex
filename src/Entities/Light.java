@@ -1,8 +1,10 @@
 package Entities;
 
+import Engine.Main;
+import Toolbox.Maths;
 import Toolbox.Vector3;
 
-public class Light
+public class Light implements  Comparable<Light>
 {
 	private Vector3 position;
 	private Vector3 color;
@@ -20,6 +22,12 @@ public class Light
 		this.position = position;
 		this.color = color;
 		this.attenuation = attenuation;
+	}
+
+	public int compareTo(Light light)
+	{
+		if(Maths.getDistanceBetweenPositions(Main.camera.getPosition(), position) > Maths.getDistanceBetweenPositions(Main.camera.getPosition(), light.getPosition())) return 1;
+		return -1;
 	}
 
 	public Vector3 getAttenuation()

@@ -1,6 +1,7 @@
 package Engine;
 
 import Entities.Entity;
+import Entities.EntityFactory;
 import Entities.Light;
 import Entities.Player;
 import GUI.MouseHandler;
@@ -39,8 +40,10 @@ public class Main
 	private static double lastFrameTime;
 	private static double delta;
 
+	private EntityProcessor entityProcessor;
+
 	private long window;
-	private Loader loader;
+	public static Camera camera;
 
 	public void run()
 	{
@@ -51,6 +54,7 @@ public class Main
 		glfwDestroyWindow(window);
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
+		entityProcessor.end();
 
 		MasterRenderer.cleanUp();
 		Loader.cleanUp();
@@ -114,25 +118,29 @@ public class Main
 		GL.createCapabilities();
 		GLUtil.setupDebugMessageCallback();
 
-		loader = new Loader();
+		Loader loader = new Loader();
 
-		RawModel model = OBJLoader.loadObjModel("stall", loader);
-		ModelTexture texture = new ModelTexture(loader.loadTexture("stall"));
-		texture.setShineDamper(10);
-		texture.setReflectivity(1);
-		TexturedModel texturedModel = new TexturedModel(model, texture);
-		Entity entity = new Entity(texturedModel, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
-
-		RawModel model2 = OBJLoader.loadObjModel("kuup", loader);
+		RawModel model2 = OBJLoader.loadObjModel("player", loader);
 		ModelTexture texture2 = new ModelTexture(loader.loadTexture("abcd"));
 		TexturedModel texturedModel2 = new TexturedModel(model2, texture2);
 		Player player = new Player(texturedModel2, new Vector3(0, 0, 0), new Vector3(0, 0, 0), 1f);
-		Camera camera = new Camera(player);
+		camera = new Camera(player);
 
-		List<Light> lights = new ArrayList<Light>();
-		lights.add(new Light(new Vector3(0, 0, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));
-		lights.add(new Light(new Vector3(0, 0, 1), new Vector3(1, 0, 1), new Vector3(1, 0.01f, 0.002f)));
-		lights.add(new Light(new Vector3(0, 0, 2), new Vector3(1, 1, 0), new Vector3(1, 0.01f, 0.002f)));
+		entityProcessor = new EntityProcessor();
+		for(int i = 0; i <= 100; i+=21)
+		{
+			entityProcessor.addEntityToWorld(EntityFactory.createEntity(loader, "roads/road1", new Vector3(i, 0, 0), new Vector3()));
+			entityProcessor.addLightToWorld(new Light(new Vector3(i, 8, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));
+		}
+		//entityProcessor.addEntityToWorld(EntityFactory.createEntity(loader, "roads/road1", new Vector3(0, 0, 0), new Vector3()));
+		//entityProcessor.addEntityToWorld(EntityFactory.createEntity(loader, "roads/road1", new Vector3(20, 0, 0), new Vector3()));
+		//entityProcessor.addEntityToWorld(EntityFactory.createEntity(loader, "roads/road1", new Vector3(-20, 0, 0), new Vector3()));
+		entityProcessor.start();
+
+		/*List<Light> lights = new ArrayList<Light>();
+		lights.add(new Light(new Vector3(0, 8, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));
+		lights.add(new Light(new Vector3(10, 8, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));
+		lights.add(new Light(new Vector3(-10, 8, 0), new Vector3(1, 1, 1), new Vector3(1, 0.01f, 0.002f)));*/
 
 		MasterRenderer renderer = new MasterRenderer();
 		lastFrameTime = getFrameTime();
@@ -147,9 +155,14 @@ public class Main
 			camera.calculatePositionRotation();
 
 			renderer.proccessEntity(player);
-			renderer.proccessEntity(entity);
 
-			renderer.render(lights, camera);
+			List<Entity> entities = entityProcessor.getEntitiesToRender();
+			for(Entity entity:entities)
+			{
+				renderer.proccessEntity(entity);
+			}
+
+			renderer.render(entityProcessor.getLightsToRender(), camera);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();

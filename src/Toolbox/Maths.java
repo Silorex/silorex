@@ -1,5 +1,6 @@
 package Toolbox;
 
+import Entities.Entity;
 import RenderEngine.Camera;
 
 public class Maths
@@ -23,5 +24,10 @@ public class Maths
 		Vector3 campos = camera.getPosition();
 		viewMatrix.translate(-campos.x(), -campos.y(), -campos.z());
 		return viewMatrix;
+	}
+
+	public static float getDistanceBetweenPositions(Vector3 pos1, Vector3 pos2)
+	{
+		return (float) Math.abs(Math.sqrt(Math.pow(pos2.x() - pos1.x(), 2) + Math.pow(pos2.y() - pos1.y(), 2) + Math.pow(pos2.z() - pos1.z(), 2)));
 	}
 }
