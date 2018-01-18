@@ -28,6 +28,16 @@ public class Entity
 		rotation.add(dx, dy, dz);
 	}
 
+	public void increasePosition(Vector3 pos)
+	{
+		position.add(pos);
+	}
+
+	public void increaseRotation(Vector3 rot)
+	{
+		rotation.add(rot);
+	}
+
 	public TexturedModel getTexturedModel() {
 		return texturedModel;
 	}

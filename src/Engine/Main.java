@@ -1,9 +1,6 @@
 package Engine;
 
-import Entities.Entity;
-import Entities.EntityFactory;
-import Entities.Light;
-import Entities.Player;
+import Entities.*;
 import GUI.MouseHandler;
 import Models.OBJLoader;
 import Models.TexturedModel;
@@ -151,7 +148,7 @@ public class Main
 			//entity.increaseRotation(0, 1, 0);
 
 			player.move();
-
+			MovingEntity.updateMovingEntities();
 			camera.calculatePositionRotation();
 
 			renderer.proccessEntity(player);

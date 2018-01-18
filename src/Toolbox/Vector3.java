@@ -43,6 +43,23 @@ public class Vector3 extends Vector2
 		this.z += z;
 	}
 
+	public void set(float x, float y, float z)
+	{
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public void set(float v)
+	{
+		set(v, v, v);
+	}
+
+	public void zero()
+	{
+		set(0);
+	}
+
 	public void add(Vector3 vec)
 	{
 		this.add(vec.x(), vec.y(), vec.z());

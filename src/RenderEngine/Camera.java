@@ -26,6 +26,8 @@ public class Camera
 	{
 		angle += dx/16;
 		pitch -= dy/16;
+		if(pitch < 5) pitch = 5;
+		else if(pitch > 85) pitch = 85;
 	}
 
 	public void calculatePositionRotation()
